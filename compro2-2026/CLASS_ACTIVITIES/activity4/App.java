@@ -1,113 +1,110 @@
+import java.util.Scanner;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Scanner;
 
-public class App {
+public class Main {
 
-    private static String[] subjects = new String[50];     
-    private static double[][] grades = new double[50][3];  
-    private static int subjectCount = 0;                   
+    // Storage
+    static double[][] grades = new double[50][3]; // [subject][Prelim, Midterm, Final]
+    static String[] subjects = new String[50];
+    static int subjectCount = 0;
+
+    static Scanner sc = new Scanner(System.in);
+
     public static void main(String[] args) {
 
-        Scanner input = new Scanner(System.in);
+        int choice;
 
         while (true) {
-            System.out.println("\n=== Personal Grade Portfolio ===");
-            System.out.println("[1] Add Subject & Grades");
-            System.out.println("[2] Display Grades");
-            System.out.println("[3] Save & Exit");
-            System.out.print("Enter choice: ");
+            System.out.println("\n===== STUDENT PORTFOLIO =====");
+            System.out.println("[1] Enter Grade");
+            System.out.println("[2] Exit");
+            System.out.print("Choose option: ");
 
-            int choice = input.nextInt();
-            input.nextLine(); 
+            choice = getIntInput();
 
             switch (choice) {
                 case 1:
-                    addSubject(input);
+                    enterGrade();
                     break;
 
                 case 2:
-                    displayGrades();
+                    saveToCSV();
+                    System.out.println("Grades saved to grades.csv");
+                    System.out.println("Exiting program...");
+                    System.exit(0);
                     break;
 
-                case 3:
-                    saveToCSV();
-                    System.out.println("Grades saved successfully. Goodbye!");
-                    System.exit(0);
-
                 default:
-                    System.out.println("Invalid choice. Please try again.");
+                    System.out.println("Invalid option. Try again.");
             }
         }
     }
 
-    private static void addSubject(Scanner input) {
-
+    // Enter subject and grades
+    private static void enterGrade() {
         if (subjectCount >= 50) {
             System.out.println("Maximum number of subjects reached.");
             return;
         }
 
+        sc.nextLine(); // clear buffer
+
         System.out.print("Enter subject name: ");
-        subjects[subjectCount] = input.nextLine();
+        subjects[subjectCount] = sc.nextLine();
 
         System.out.print("Enter Prelim grade: ");
-        grades[subjectCount][0] = input.nextDouble();
+        grades[subjectCount][0] = getDoubleInput();
 
         System.out.print("Enter Midterm grade: ");
-        grades[subjectCount][1] = input.nextDouble();
+        grades[subjectCount][1] = getDoubleInput();
 
         System.out.print("Enter Final grade: ");
-        grades[subjectCount][2] = input.nextDouble();
+        grades[subjectCount][2] = getDoubleInput();
 
         subjectCount++;
-        System.out.println("Subject and grades added successfully.");
+        System.out.println("Subject added successfully.");
     }
 
-    private static void displayGrades() {
+    // Save data to CSV file
+    private static void saveToCSV() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("grades.csv"))) {
 
-        if (subjectCount == 0) {
-            System.out.println("No grades recorded yet.");
-            return;
-        }
-
-        System.out.println("\n--- Grade Portfolio ---");
-        System.out.println("Subject | Prelim | Midterm | Final");
-
-        for (int i = 0; i < subjectCount; i++) {
-            System.out.println(
-                subjects[i] + " | " +
-                grades[i][0] + " | " +
-                grades[i][1] + " | " +
-                grades[i][2]
-            );
-        }
-    }
-
-   private static void saveToCSV() {
-
-    try (BufferedWriter writer = new BufferedWriter(
-            new FileWriter("C:\\Users\\tausc\\OneDrive\\Documents\\grade_portfolio.csv"))) {
-
-        writer.write("Subject,Prelim,Midterm,Final");
-        writer.newLine();
-
-        for (int i = 0; i < subjectCount; i++) {
-            writer.write(
-                subjects[i] + "," +
-                grades[i][0] + "," +
-                grades[i][1] + "," +
-                grades[i][2]
-            );
+            // Header
+            writer.write("Subject,Prelim,Midterm,Final");
             writer.newLine();
+
+            for (int i = 0; i < subjectCount; i++) {
+                writer.write(
+                        subjects[i] + "," +
+                        grades[i][0] + "," +
+                        grades[i][1] + "," +
+                        grades[i][2]
+                );
+                writer.newLine();
+            }
+
+        } catch (IOException e) {
+            System.out.println("Error writing file: " + e.getMessage());
         }
+    }
 
-        System.out.println("CSV file saved at: C:\\Users\\tausc\\OneDrive\\Documents\\grade_portfolio.csv");
+    // Safe integer input
+    private static int getIntInput() {
+        while (!sc.hasNextInt()) {
+            System.out.print("Invalid input. Enter a number: ");
+            sc.next();
+        }
+        return sc.nextInt();
+    }
 
-    } catch (IOException e) {
-        System.out.println("Error saving file: " + e.getMessage());
+    // Safe double input
+    private static double getDoubleInput() {
+        while (!sc.hasNextDouble()) {
+            System.out.print("Invalid input. Enter a number: ");
+            sc.next();
+        }
+        return sc.nextDouble();
     }
 }
-
-        }
